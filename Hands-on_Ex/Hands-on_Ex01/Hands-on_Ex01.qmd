@@ -1,0 +1,13 @@
+---
+title: "Hands-on Exercise 1"
+author: "Wang Anqi"
+---
+
+Getting started
+
+Install and launching R packages
+
+
+```{r}
+pacman::p_load(tidyverse)
+```
