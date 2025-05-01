@@ -2,7 +2,7 @@
 title: "Hands-on Exercise 1"
 author: "Wang Anqi"
 execute:
-  freeze: false
+  freeze: true
 ---
 
 # **1.1 Getting started**
