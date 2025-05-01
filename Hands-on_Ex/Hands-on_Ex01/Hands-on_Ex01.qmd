@@ -1,23 +1,25 @@
 ---
 title: "Hands-on Exercise 1"
 author: "Wang Anqi"
+execute:
+  freeze: false
 ---
 
-# Getting started
+# **1.1 Getting started**
 
-## Install and launching R packages
+## 1.1.1 Install and launching R packages
 
 ```{r}
 pacman::p_load(tidyverse)
 ```
 
-## Import the data
+## 1.1.2 Import the data
 
 ```{r}
 exam_data <- read.csv("data/Exam_data.csv")
 ```
 
-# **Introducing ggplot**
+# **1.2 Introducing ggplot**
 
 ```{r}
 ggplot(data = exam_data,
@@ -25,7 +27,7 @@ ggplot(data = exam_data,
   geom_bar()
 ```
 
-## **R Graphics VS ggplot**
+## **1.2.1 R Graphics VS ggplot**
 
 R Graphics
 
@@ -44,7 +46,7 @@ ggplot(data=exam_data, aes(x = MATHS)) +
   ggtitle("Distribution of Maths scores")
 ```
 
-# **Essential Grammatical Elements in ggplot2: data**
+# **1.3 Essential Grammatical Elements in ggplot2: data**
 
 Call the ggplot() function.
 
@@ -52,7 +54,7 @@ Call the ggplot() function.
 ggplot(data=exam_data)
 ```
 
-# Essential Grammatical Elements in ggplot2: Aesthetic mappings
+# **1.4 Essential Grammatical Elements in ggplot2: Aesthetic mappings**
 
 Add the aesthetic element into the plot.
 
@@ -61,9 +63,9 @@ ggplot(data=exam_data,
        aes(x= MATHS))
 ```
 
-# **Essential Grammatical Elements in ggplot2: geom**
+# **1.5 Essential Grammatical Elements in ggplot2: geom**
 
-## **Geometric Objects: geom_bar**
+## **1.5.1 Geometric Objects: geom_bar**
 
 Plot a bar chart by using ‘geom_bar()’.
 
@@ -73,7 +75,7 @@ ggplot(data=exam_data,
   geom_bar()
 ```
 
-## **Geometric Objects: geom_dotplot**
+## **1.5.2 Geometric Objects: geom_dotplot**
 
 Plot a dot plot by using ‘geom_dotplot()’.
 
@@ -94,7 +96,7 @@ ggplot(data=exam_data,
                      breaks = NULL)  
 ```
 
-## Geometric Objects: geom_histogram()
+## **1.5.3** Geometric Objects: geom_histogram()
 
 Use geom_histogram() to create a simple histogram by using values in MATHS field of exam_data.
 
@@ -104,7 +106,7 @@ ggplot(data=exam_data,
   geom_histogram()         
 ```
 
-## Modifying a geometric object by changing geom()
+## **1.5.4** Modifying a geometric object by changing geom()
 
 In the code chunk below,
 
@@ -118,7 +120,7 @@ ggplot(data=exam_data,
                  fill="light blue")  
 ```
 
-## Modifying a geometric object by changing aes()
+## **1.5.5** Modifying a geometric object by changing aes()
 
 Change the interior colour of the histogram (i.e. fill) by using sub-group of aesthetic().
 
@@ -130,7 +132,7 @@ ggplot(data=exam_data,
                  color="grey30")
 ```
 
-## **Geometric Objects: geom-density()**
+## **1.5.6 Geometric Objects: geom-density()**
 
 Plot the distribution of Maths scores in a kernel density estimate plot.
 
@@ -149,7 +151,7 @@ ggplot(data=exam_data,
   geom_density()          
 ```
 
-## **Geometric Objects: geom_boxplot**
+## **1.5.7 Geometric Objects: geom_boxplot**
 
 Plot boxplots by using geom_boxplot().
 
@@ -169,7 +171,7 @@ ggplot(data=exam_data,
   geom_boxplot(notch=TRUE)                  
 ```
 
-## **Geometric Objects: geom_violin**
+## **1.5.8 Geometric Objects: geom_violin**
 
 Plot the distribution of Maths score by gender in violin plot.
 
@@ -188,7 +190,7 @@ ggplot(data = exam_data, aes(x = GENDER, y = MATHS)) +
   geom_boxplot(width = 0.1)
 ```
 
-## **Geometric Objects: geom_point()**
+## **1.5.9 Geometric Objects: geom_point()**
 
 Plot a scatterplot showing the Maths and English grades of pupils by using geom_point().
 
@@ -199,7 +201,7 @@ ggplot(data=exam_data,
   geom_point()                          
 ```
 
-## ***Geom*** **objects can be combined**
+## **1.5.10 *Geom*** **objects can be combined**
 
 Plot the data points on the boxplots by using both geom_boxplot() and geom_point().
 
@@ -212,9 +214,9 @@ ggplot(data=exam_data,
              size = 0.5)                            
 ```
 
-# **Essential Grammatical Elements in ggplot2: stat**
+# **1.6 Essential Grammatical Elements in ggplot2: stat**
 
-### **Working with `stat()`**
+## **1.6.1 Working with `stat()`**
 
 The boxplots below are incomplete because the positions of the means were not shown.
 
@@ -227,7 +229,7 @@ ggplot(data=exam_data,
              size = 0.5)                            
 ```
 
-### **Working with stat - the *stat_summary()* method**
+## **1.6.2 Working with stat - the *stat_summary()* method**
 
 The code chunk below adds mean values by using stat_summary() function and overriding the default geom.
 
@@ -241,7 +243,7 @@ ggplot(data=exam_data,
                size=4)                              
 ```
 
-### **Working with stat - the `geom()` method**
+## **1.6.3 Working with stat - the `geom()` method**
 
 The code chunk below adding mean values by using geom\_() function and overriding the default stat.
 
@@ -255,7 +257,7 @@ ggplot(data=exam_data,
              size=4)           
 ```
 
-### **Adding a best fit curve on a scatterplot**
+## **1.6.4 Adding a best fit curve on a scatterplot**
 
 The scatterplot below shows the relationship of Maths and English grades of pupils. The interpretability of this graph can be improved by adding a best fit curve.
 
@@ -285,9 +287,9 @@ ggplot(data=exam_data,
               linewidth=0.5)        
 ```
 
-## **Essential Grammatical Elements in ggplot2: Facets**
+# **1.7 Essential Grammatical Elements in ggplot2: Facets**
 
-### Working with facet_wrap()
+## 1.7.1 Working with facet_wrap()
 
 The code chunk below plots a trellis plot using facet-wrap().
 
@@ -298,7 +300,7 @@ ggplot(data=exam_data,
     facet_wrap(~ CLASS)   
 ```
 
-### facet_grid() function
+## 1.7.2 facet_grid() function
 
 facet_grid() forms a matrix of panels defined by row and column facetting variables. It is most useful when you have two discrete variables, and all combinations of the variables exist in the data.
 
@@ -311,9 +313,9 @@ ggplot(data=exam_data,
     facet_grid(~ CLASS)  
 ```
 
-## **Essential Grammatical Elements in ggplot2: Coordinates**
+# **1.8 Essential Grammatical Elements in ggplot2: Coordinates**
 
-### **Working with Coordinate**
+## **1.8.1 Working with Coordinate**
 
 By the default, the bar chart of ggplot2 is in vertical form.
 
@@ -332,7 +334,7 @@ ggplot(data=exam_data,
   coord_flip()
 ```
 
-### **Changing the y- and x-axis range**
+## **1.8.2 Changing the y- and x-axis range**
 
 The scatterplot below is slightly misleading because the y-aixs and x-axis range are not equal.
 
@@ -355,9 +357,9 @@ ggplot(data=exam_data,
                   ylim=c(0,100))
 ```
 
-## **Essential Grammatical Elements in ggplot2: themes**
+# **1.9 Essential Grammatical Elements in ggplot2: themes**
 
-### **Working with theme**
+## **1.9.1 Working with theme**
 
 The code chunk below plot a horizontal bar chart using theme_gray().
 
