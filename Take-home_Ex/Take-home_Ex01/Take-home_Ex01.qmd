@@ -295,13 +295,15 @@ ggplot(top_pa, aes(x = reorder(PA, Total), y = Total)) +
 
 The bar chart displays the top 10 planning areas in Singapore by total population in 2024. Tampines ranks first, followed closely by Bedok and Sengkang. These areas are known for their large residential zones and well-developed public amenities. Most of the top-ranked areas are located in the eastern and northern parts of Singapore, reflecting urban decentralisation and population growth in regional centres. The population sizes of these areas are relatively close, each exceeding 150,000 residents.
 
-## 1.4.3 Working and Non-working Age Population in Top 10 Planning Areas
+## **1.4.3 Working and Non-working Age Population in Top 10 Planning Areas**
 
 ::: panel-tabset
 ## The plot
 
 ```{r}
 #| echo: false
+#| fig-width: 12
+#| fig-hight: 14
 
 top10_pa <- popu_data1 %>%
   count(PA, wt = Pop) %>%
@@ -377,4 +379,4 @@ ggplot(age_grouped, aes(x = reorder(PA, -Total), y = Total, fill = AgeGroup)) +
 ```
 :::
 
-This stacked bar chart shows the distribution of working-age (25–64) and non-working-age (0–24 and 65+) populations across the top 10 most populous planning areas in Singapore (2024). Working-age individuals consistently make up the majority in every area, with Tampines, Sengkang, and Woodlands having particularly high counts. Interestingly, Bedok and Jurong West, despite their large populations, have a relatively higher share of non-working-age residents—likely due to an older population base. In contrast, newer towns like Punggol and Sengkang have a larger proportion of working-age adults, reflecting younger and growing communities. This breakdown helps inform policies on housing, healthcare, and employment support.
+This stacked bar chart shows the distribution of working-age (25–64) and non-working-age (0–24 and 65+) populations across the top 10 most populous planning areas in Singapore (2024). Working-age individuals consistently make up the majority in every area, with Tampines, Sengkang, and Woodlands having particularly high counts. Interestingly, Bedok and Jurong West, despite their large populations, have a relatively higher share of non-working-age residents—likely due to an older population base. In contrast, newer towns like Punggol and Sengkang have a larger proportion of working-age adults, reflecting younger and growing communities.
