@@ -3,6 +3,7 @@ title: "Hands-on_Ex03"
 author: "Wang Anqi"
 execute:
   warning: false
+  freeze: true
 ---
 
 # **3 [Programming Interactive Data Visualisation with R]{.underline}**
