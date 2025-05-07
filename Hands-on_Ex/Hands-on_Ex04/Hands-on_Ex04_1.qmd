@@ -3,7 +3,7 @@ title: "4.1 Visualising Distribution"
 author: "Wang Anqi"
 execute:
   warning: false
-  freeze: false
+  freeze: true
 ---
 
 In this chapter, we are going to share with you two relatively new statistical graphic methods for visualising distribution, namely ridgeline plot and raincloud plot by using ggplot2 and its extensions.

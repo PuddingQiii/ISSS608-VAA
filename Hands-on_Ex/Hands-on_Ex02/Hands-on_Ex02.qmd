@@ -1,5 +1,5 @@
 ---
-title: "Hands-on Exercise 2"
+title: "2 Designing Graphs to Enlighten"
 author: "Wang Anqi"
 execute:
   warning: false

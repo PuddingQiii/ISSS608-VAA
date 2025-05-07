@@ -1,5 +1,5 @@
 ---
-title: "Hands-on Exercise 1"
+title: "1 Introduction to Visual Analytics"
 author: "Wang Anqi"
 execute:
   freeze: true
