@@ -3,7 +3,7 @@ title: "3 Interactivity in Visual Analytics: Principles and Methods"
 author: "Wang Anqi"
 execute:
   warning: false
-  freeze: true
+  freeze: false
 ---
 
 # **3 [Programming Interactive Data Visualisation with R]{.underline}**

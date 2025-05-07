@@ -3,7 +3,7 @@ title: "4.2 Visual Statistical Analysis"
 author: "Wang Anqi"
 execute:
   warning: false
-  freeze: false
+  freeze: true
 ---
 
 In this hands-on exercise, I will use the following tools to visual statistical analysis:
