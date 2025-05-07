@@ -3,7 +3,7 @@ title: "2 Designing Graphs to Enlighten"
 author: "Wang Anqi"
 execute:
   warning: false
-  freeze: false
+  freeze: true
 ---
 
 # **2.1 Getting started**

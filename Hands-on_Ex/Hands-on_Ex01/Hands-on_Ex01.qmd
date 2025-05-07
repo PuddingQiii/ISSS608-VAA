@@ -2,7 +2,7 @@
 title: "1 Introduction to Visual Analytics"
 author: "Wang Anqi"
 execute:
-  freeze: false
+  freeze: true
 ---
 
 # **1.1 Getting started**
