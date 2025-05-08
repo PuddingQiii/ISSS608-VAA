@@ -3,18 +3,18 @@ title: "4.3 Visualising Uncertainty"
 author: "Wang Anqi"
 execute:
   warning: false
-  freeze: false
+  freeze: true
 ---
 
 This exercise showcases various techniques for visualising statistical uncertainty. It includes examples of:
 
--    statistical error bars created using **ggplot2**,
+-   statistical error bars created using **ggplot2**,
 
--    interactive error bars combining **ggplot2**, **plotly**, and **DT**,
+-   interactive error bars combining **ggplot2**, **plotly**, and **DT**,
 
--    advanced distribution visualisations with **ggdist**, and
+-   advanced distribution visualisations with **ggdist**, and
 
--    hypothetical outcome plots (HOPs) generated using the **ungeviz** package.
+-   hypothetical outcome plots (HOPs) generated using the **ungeviz** package.
 
 These visualisations help illustrate the uncertainty inherent in statistical data and models.
 
