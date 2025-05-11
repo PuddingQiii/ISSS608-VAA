@@ -1,8 +1,10 @@
 ---
 title: "Take-Home Exercise 1: Data Visualisation on Singapore’s Demographics (2024)"
 author: "Wang Anqi"
+format: docx
 execute:
   warning: false
+  freeze: true
 ---
 
 # **1.1 Overview**
@@ -65,23 +67,23 @@ According to the dataset documentation, The meaning of each column in the datase
 
 <!-- -->
 
--    **SZ**：Subzone
+-   **SZ**：Subzone
 
 <!-- -->
 
--    **Age**：Single Year of Age
+-   **Age**：Single Year of Age
 
 <!-- -->
 
--    **Sex**：Sex
+-   **Sex**：Sex
 
 <!-- -->
 
--    **Pop**：Resident Count
+-   **Pop**：Resident Count
 
 <!-- -->
 
--    **Time**：Time / Period
+-   **Time**：Time / Period
 
 Since all data points were collected in the year 2024 and the `Time` column does not provide additional analytical value for this task, it will be removed from the dataset to simplify the analysis.
 
@@ -112,12 +114,9 @@ popu_data1
 
 ## **1.3.3 Data Recoding and Type Conversion**
 
-As shown in the output above, the `Age` column is currently stored as a character type (`<chr>`), rather than as an integer (`<int>`).
-This prevents numerical operations and proper plotting of age-related trends.
-Therefore, it is necessary to convert the `Age` variable to an integer format to enable meaningful quantitative analysis.
+As shown in the output above, the `Age` column is currently stored as a character type (`<chr>`), rather than as an integer (`<int>`). This prevents numerical operations and proper plotting of age-related trends. Therefore, it is necessary to convert the `Age` variable to an integer format to enable meaningful quantitative analysis.
 
-But the dataset contains a special age value `"90 and over"` which cannot be directly converted to a numeric format.
-To maintain consistency and enable numerical analysis, this value was recoded to `90`, representing the lower bound of the age group.
+But the dataset contains a special age value `"90 and over"` which cannot be directly converted to a numeric format. To maintain consistency and enable numerical analysis, this value was recoded to `90`, representing the lower bound of the age group.
 
 ```{r}
 # Step 1: Recode "90 and over" to "90"

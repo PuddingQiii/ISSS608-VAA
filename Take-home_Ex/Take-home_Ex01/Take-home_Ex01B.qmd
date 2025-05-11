@@ -1,0 +1,702 @@
+---
+title: "Take-Home Exercise 1: Data Visualisation Makeover"
+author: "Wang Anqi"
+
+execute:
+  warning: false
+---
+
+# **1 Overview**
+
+In this part, I will select one exercise provided by my classmate, critic three good design principles and three areas for further improvement.
+
+Then with reference to the comment, I will prepare the makeover version of the data visualisation.
+
+## 1.1 **Original visualization**
+
+The original visualization is from my classmate Wang Shensi. Please click on this [Link](https://wshensi.netlify.app/take-home_ex/take-home_ex01/take-home_ex01) to view the original visualization report or obtain more information.
+
+In this section, I will make comments and revisions on visualization 2 and 3.
+
+# **2 Getting Started**
+
+## 2.1 **Installing and loading the required libraries**
+
+The following R packages were utilized for data pre-processing and visualization:
+
+```{r}
+pacman::p_load(plotly, tidyverse, DT, ggiraph, patchwork, ggstatsplot, GGally, corrplot)
+```
+
+## 2.2 **Importing data**
+
+The code chunk below imports *exam_data.csv* into R environment by using [*read_csv()*](https://readr.tidyverse.org/reference/read_delim.html) function of [**readr**](https://readr.tidyverse.org/) package. **readr** is one of the tidyverse package.
+
+```{r}
+respop <- read_csv("data/respopagesex2024.csv", show_col_types = FALSE)  
+```
+
+# **3 Data Wrangling**
+
+To maintain data consistency, I will replicate exactly the data processing steps performed in the selected exercise.
+
+## **3.1 Remove Duplicates**
+
+Remove any duplicated rows to avoid double-counting:
+
+::: panel-tabset
+## The code chunk
+
+```{r}
+#| eval: false
+respop <- distinct(respop)
+DT::datatable(head(respop), options = list(scrollX = TRUE), caption = "After Removing Duplicates")
+```
+
+## Data table
+
+```{r}
+#| echo: false
+popu_data <- read_csv("data/respopagesex2024.csv", show_col_types = FALSE)   
+```
+:::
+
+## **3.2 Handle Missing Values**
+
+Ensure there are no missing or malformed entries in critical columns:
+
+::: panel-tabset
+## The code chunk
+
+```{r}
+#| eval: false
+respop <- drop_na(respop)
+DT::datatable(head(respop), options = list(scrollX = TRUE), 
+              caption = "After Dropping Missing Values")
+```
+
+## Data table
+
+```{r}
+#| echo: false
+respop <- drop_na(respop)
+DT::datatable(head(respop), options = list(scrollX = TRUE), caption = "After Dropping Missing Values")
+```
+:::
+
+## **3.3 Standardize Age Format**
+
+The `Age` column includes a non-numeric category `"90_and_Over"` which cannot be coerced into an integer. We convert this category into a numeric age of **90**, representing a minimum estimate for analysis:
+
+::: panel-tabset
+## The code chunk
+
+```{r}
+#| eval: false
+respop <- respop %>%
+  mutate(Age = ifelse(Age == "90_and_Over", "90", Age),
+         Age = as.integer(Age))
+DT::datatable(head(respop), options = list(scrollX = TRUE), caption = "After Converting Age Format")
+```
+
+## Data table
+
+```{r}
+#| echo: false
+respop <- respop %>%
+  mutate(Age = ifelse(Age == "90_and_Over", "90", Age),
+         Age = as.integer(Age))
+DT::datatable(head(respop), options = list(scrollX = TRUE), caption = "After Converting Age Format")
+```
+:::
+
+## **3.4 Convert Column Types**
+
+Ensure categorical and numeric columns are properly formatted:
+
+::: panel-tabset
+## The code chunk
+
+```{r}
+#| eval: false
+respop <- respop %>%
+  mutate(
+    Sex = as.factor(Sex),
+    PA = as.factor(PA),
+    SZ = as.factor(SZ)
+  )
+DT::datatable(head(respop), options = list(scrollX = TRUE), caption = "After Converting Column Types")
+```
+
+## Data table
+
+```{r}
+#| echo: false
+respop <- respop %>%
+  mutate(
+    Sex = as.factor(Sex),
+    PA = as.factor(PA),
+    SZ = as.factor(SZ)
+  )
+DT::datatable(head(respop), options = list(scrollX = TRUE), caption = "After Converting Column Types")
+```
+:::
+
+# **4 Evaluation and Improvement**
+
+## 4.1 **Gender Ratio by Planning Area**
+
+This section displays the **male-to-female population ratio** for each Singapore planning area. It uses color to indicate whether an area has more males, more females, or is balanced, and includes interactive tooltips for details.
+
+### 4.1.1 **Original visualization**
+
+::: panel-tabset
+## The plot
+
+```{r}
+#| echo: false
+
+# Load Required Libraries
+library(tidyverse)
+library(ggiraph)
+
+#Calculate Gender Ratio and Prepare Tooltip
+gender_ratio <- respop %>%
+  group_by(PA, Sex) %>%
+  summarise(Total = sum(Pop), .groups = "drop") %>%
+  pivot_wider(names_from = Sex, values_from = Total) %>%
+  mutate(Total_Pop = Males + Females) %>%
+  filter(Total_Pop > 100) %>% 
+  mutate(
+    Ratio = round(Males / Females, 2),
+    Status = case_when(
+      Ratio > 1.05 ~ "More Males",
+      Ratio < 0.95 ~ "More Females",
+      TRUE ~ "Balanced"
+    ),
+    Tooltip = paste0("Planning Area: ", PA,
+                     "\nMales: ", format(Males, big.mark = ","),
+                     "\nFemales: ", format(Females, big.mark = ","),
+                     "\nRatio (M/F): ", Ratio),
+    Label = as.character(Ratio)
+  )
+
+#Create the ggplot Object with Interactive Bars
+gg <- ggplot(gender_ratio,
+             aes(x = reorder(PA, Ratio), y = Ratio,
+                 fill = Status,
+                 tooltip = Tooltip, data_id = PA)) +
+  geom_col_interactive(width = 0.7) +
+  geom_text(aes(label = Label),
+            hjust = -0.1, color = "black", size = 3) + 
+  scale_fill_manual(values = c("More Males" = "#1f77b4",
+                               "More Females" = "#ff7f0e",
+                               "Balanced" = "#66c2a5")) +
+  coord_flip() +
+  theme_minimal() +
+  theme(
+    axis.text.y = element_text(size = 7),
+    plot.margin = margin(r = 20) 
+  ) +
+  labs(title = "Interactive Gender Ratio by Planning Area (M/F)",
+       x = "Planning Area", y = "Male-to-Female Ratio")
+
+# Render Interactive Widget
+girafe(ggobj = gg,
+       width_svg = 8, height_svg = 6,
+       options = list(
+         opts_tooltip(css = "background-color:white;color:black;border:1px solid gray;padding:5px;"),
+         opts_hover(css = "fill-opacity:0.8;cursor:pointer;")
+       ))
+```
+
+## The code
+
+```{r}
+#| eval: false
+
+# Load Required Libraries
+library(tidyverse)
+library(ggiraph)
+
+#Calculate Gender Ratio and Prepare Tooltip
+gender_ratio <- respop %>%
+  group_by(PA, Sex) %>%
+  summarise(Total = sum(Pop), .groups = "drop") %>%
+  pivot_wider(names_from = Sex, values_from = Total) %>%
+  mutate(Total_Pop = Males + Females) %>%
+  filter(Total_Pop > 100) %>% 
+  mutate(
+    Ratio = round(Males / Females, 2),
+    Status = case_when(
+      Ratio > 1.05 ~ "More Males",
+      Ratio < 0.95 ~ "More Females",
+      TRUE ~ "Balanced"
+    ),
+    Tooltip = paste0("Planning Area: ", PA,
+                     "\nMales: ", format(Males, big.mark = ","),
+                     "\nFemales: ", format(Females, big.mark = ","),
+                     "\nRatio (M/F): ", Ratio),
+    Label = as.character(Ratio)
+  )
+
+#Create the ggplot Object with Interactive Bars
+gg <- ggplot(gender_ratio,
+             aes(x = reorder(PA, Ratio), y = Ratio,
+                 fill = Status,
+                 tooltip = Tooltip, data_id = PA)) +
+  geom_col_interactive(width = 0.7) +
+  geom_text(aes(label = Label),
+            hjust = -0.1, color = "black", size = 3) + 
+  scale_fill_manual(values = c("More Males" = "#1f77b4",
+                               "More Females" = "#ff7f0e",
+                               "Balanced" = "#66c2a5")) +
+  coord_flip() +
+  theme_minimal() +
+  theme(
+    axis.text.y = element_text(size = 7),
+    plot.margin = margin(r = 20) 
+  ) +
+  labs(title = "Interactive Gender Ratio by Planning Area (M/F)",
+       x = "Planning Area", y = "Male-to-Female Ratio")
+
+# Render Interactive Widget
+girafe(ggobj = gg,
+       width_svg = 8, height_svg = 6,
+       options = list(
+         opts_tooltip(css = "background-color:white;color:black;border:1px solid gray;padding:5px;"),
+         opts_hover(css = "fill-opacity:0.8;cursor:pointer;")
+       ))
+```
+:::
+
+### **4.1.2 Comments**
+
+**Good design principles:**
+
+-   [x] **Clear title and axis labels**
+
+    The chart has a well-defined title and clearly labeled axes, making it easy for viewers to understand that it visualizes the male-to-female ratio by planning area.
+
+<!-- -->
+
+-   [x] **Effective color encoding of categories**
+
+    The use of three distinct colors to represent "More Males", "Balanced", and "More Females" helps convey categorical differences clearly, supported by a well-positioned legend.\
+
+-   [x] **Sorted bars enhance interpretability**\
+
+    The bars are ordered from highest to lowest gender ratio, which allows for quick comparison across planning areas and easy identification of outliers.
+
+**Areas for further improvement:**
+
+-   **Insufficient color contrast**\
+
+    The colors for "Balanced" and "More Females" are relatively muted and close in tone, making them harder to distinguish—especially for viewers with color vision deficiencies.
+
+-   **Inconsistent use of data labels**\
+
+    Only bars on the right have numeric labels, while shorter bars (on the left) do not, making it harder to interpret exact values for those areas.
+
+-   **Lack of a reference line or benchmark**\
+    The chart does not include a reference line (e.g., a ratio of 1.0) or an average, which would help viewers better understand deviations from gender balance.
+
+###  **4.1.3 Makeover Version of the Visualization**
+
+::: panel-tabset
+## The plot
+
+```{r}
+#| echo: false
+
+# Calculate Gender Ratio and Prepare Tooltip
+gender_ratio <- respop %>%
+  group_by(PA, Sex) %>%
+  summarise(Total = sum(Pop), .groups = "drop") %>%
+  pivot_wider(names_from = Sex, values_from = Total) %>%
+  mutate(Total_Pop = Males + Females) %>%
+  filter(Total_Pop > 100) %>%
+  mutate(
+    Ratio = round(Males / Females, 2),
+    Status = case_when(
+      Ratio > 1.05 ~ "More Males",
+      Ratio < 0.95 ~ "More Females",
+      TRUE ~ "Balanced"
+    ),
+    Tooltip = paste0("Planning Area: ", PA,
+                     "\nMales: ", format(Males, big.mark = ","),
+                     "\nFemales: ", format(Females, big.mark = ","),
+                     "\nRatio (M/F): ", Ratio),
+    Label = as.character(Ratio)
+  )
+
+gg <- ggplot(gender_ratio,
+             aes(x = reorder(PA, Ratio), y = Ratio,
+                 fill = Status, tooltip = Tooltip, data_id = PA)) +
+  geom_col_interactive(width = 0.7) +
+
+  # Reference line at gender balance (M/F = 1)
+ geom_hline(yintercept = 1, linetype = "dashed", color = "black", size = 0.6) +
+
+
+  # Improved data labels for all bars
+  geom_text(
+  aes(label = Label),
+  hjust = 1.1, 
+  color = "white",
+  size = 3
+) +
+
+
+  # Enhanced color contrast
+  scale_fill_manual(values = c(
+    "More Males" = "#1f77b4",     # Blue
+    "More Females" = "#d62728",  # Red
+    "Balanced" = "#2ca02c"       # Green
+  )) +
+
+  coord_flip() +
+  theme_minimal() +
+  theme(
+    axis.text.y = element_text(size = 7),
+    plot.margin = margin(r = 20)
+  ) +
+  labs(title = "Interactive Gender Ratio by Planning Area (M/F)",
+       x = "Planning Area", y = "Male-to-Female Ratio")
+
+# Render the interactive widget
+girafe(ggobj = gg,
+       width_svg = 8, height_svg = 6,
+       options = list(
+         opts_tooltip(css = "background-color:white;color:black;border:1px solid gray;padding:5px;"),
+         opts_hover(css = "fill-opacity:0.8;cursor:pointer;")
+       ))
+
+```
+
+## The code
+
+```{r}
+#| eval: false
+
+# Calculate Gender Ratio and Prepare Tooltip
+gender_ratio <- respop %>%
+  group_by(PA, Sex) %>%
+  summarise(Total = sum(Pop), .groups = "drop") %>%
+  pivot_wider(names_from = Sex, values_from = Total) %>%
+  mutate(Total_Pop = Males + Females) %>%
+  filter(Total_Pop > 100) %>%
+  mutate(
+    Ratio = round(Males / Females, 2),
+    Status = case_when(
+      Ratio > 1.05 ~ "More Males",
+      Ratio < 0.95 ~ "More Females",
+      TRUE ~ "Balanced"
+    ),
+    Tooltip = paste0("Planning Area: ", PA,
+                     "\nMales: ", format(Males, big.mark = ","),
+                     "\nFemales: ", format(Females, big.mark = ","),
+                     "\nRatio (M/F): ", Ratio),
+    Label = as.character(Ratio)
+  )
+
+gg <- ggplot(gender_ratio,
+             aes(x = reorder(PA, Ratio), y = Ratio,
+                 fill = Status, tooltip = Tooltip, data_id = PA)) +
+  geom_col_interactive(width = 0.7) +
+
+  # Reference line at gender balance (M/F = 1)
+ geom_hline(yintercept = 1, linetype = "dashed", color = "black", size = 0.6) +
+
+
+  # Improved data labels for all bars
+  geom_text(
+  aes(label = Label),
+  hjust = 1.1, 
+  color = "white",
+  size = 3
+) +
+
+
+  # Enhanced color contrast
+  scale_fill_manual(values = c(
+    "More Males" = "#1f77b4",     # Blue
+    "More Females" = "#d62728",  # Red
+    "Balanced" = "#2ca02c"       # Green
+  )) +
+
+  coord_flip() +
+  theme_minimal() +
+  theme(
+    axis.text.y = element_text(size = 7),
+    plot.margin = margin(r = 20)
+  ) +
+  labs(title = "Interactive Gender Ratio by Planning Area (M/F)",
+       x = "Planning Area", y = "Male-to-Female Ratio")
+
+# Render the interactive widget
+girafe(ggobj = gg,
+       width_svg = 8, height_svg = 6,
+       options = list(
+         opts_tooltip(css = "background-color:white;color:black;border:1px solid gray;padding:5px;"),
+         opts_hover(css = "fill-opacity:0.8;cursor:pointer;")
+       ))
+```
+:::
+
+## 4.2 **Total Population by Planning Area**
+
+This section presents the total 2024 population for each planning area in Singapore using an interactive bar chart. Tooltips reveal the exact population figures on hover, and low-population areas are excluded to improve readability.
+
+### 4.2.1 **Original visualization**
+
+::: panel-tabset
+## The plot
+
+```{r}
+#| echo: false
+
+# Aggregate and Filter Population Data
+total_pop <- respop %>%
+  group_by(PA) %>%
+  summarise(Total_Pop = sum(Pop), .groups = "drop") %>%
+  filter(Total_Pop > 100) %>%
+  mutate(
+    Tooltip = paste0("Planning Area: ", PA,
+                     "\nPopulation: ", format(Total_Pop, big.mark = ",")),
+    Label = paste0(round(Total_Pop / 1000), "k")
+  )
+
+# Build Interactive ggplot Object
+max_val <- max(total_pop$Total_Pop)
+
+gg <- ggplot(total_pop, aes(x = reorder(PA, Total_Pop), y = Total_Pop,
+                            tooltip = Tooltip, data_id = PA)) +
+  geom_col_interactive(fill = "#2ca02c", width = 0.7) +
+  geom_text(aes(label = Label),
+            hjust = -0.1, color = "black", size = 3) + 
+  coord_flip() +
+  scale_y_continuous(
+    labels = ~ paste0(.x / 1000, "k"),
+    limits = c(0, max_val * 1.1) 
+  ) +
+  theme_minimal() +
+  theme(axis.text.y = element_text(size = 7),
+        plot.margin = margin(r = 30)) +  
+  labs(title = "Interactive Total Population by Planning Area (2024)",
+       x = "Planning Area", y = "Total Population")
+
+# Render Interactive Widget
+girafe(ggobj = gg,
+       width_svg = 8, height_svg = 6,
+       options = list(
+         opts_tooltip(css = "background-color:white;color:black;border:1px solid gray;padding:5px;"),
+         opts_hover(css = "fill-opacity:0.8;cursor:pointer;")
+       ))
+```
+
+## The code
+
+```{r}
+#| eval: false
+
+# Aggregate and Filter Population Data
+total_pop <- respop %>%
+  group_by(PA) %>%
+  summarise(Total_Pop = sum(Pop), .groups = "drop") %>%
+  filter(Total_Pop > 100) %>%
+  mutate(
+    Tooltip = paste0("Planning Area: ", PA,
+                     "\nPopulation: ", format(Total_Pop, big.mark = ",")),
+    Label = paste0(round(Total_Pop / 1000), "k")
+  )
+
+# Build Interactive ggplot Object
+max_val <- max(total_pop$Total_Pop)
+
+gg <- ggplot(total_pop, aes(x = reorder(PA, Total_Pop), y = Total_Pop,
+                            tooltip = Tooltip, data_id = PA)) +
+  geom_col_interactive(fill = "#2ca02c", width = 0.7) +
+  geom_text(aes(label = Label),
+            hjust = -0.1, color = "black", size = 3) + 
+  coord_flip() +
+  scale_y_continuous(
+    labels = ~ paste0(.x / 1000, "k"),
+    limits = c(0, max_val * 1.1) 
+  ) +
+  theme_minimal() +
+  theme(axis.text.y = element_text(size = 7),
+        plot.margin = margin(r = 30)) +  
+  labs(title = "Interactive Total Population by Planning Area (2024)",
+       x = "Planning Area", y = "Total Population")
+
+# Render Interactive Widget
+girafe(ggobj = gg,
+       width_svg = 8, height_svg = 6,
+       options = list(
+         opts_tooltip(css = "background-color:white;color:black;border:1px solid gray;padding:5px;"),
+         opts_hover(css = "fill-opacity:0.8;cursor:pointer;")
+```
+:::
+
+### **4.2.2 Comments**
+
+**Good design principles:**
+
+-   [x] **Clear ranking and labeling**
+    The bar chart is sorted from highest to lowest population, and all bars are labeled with clear population values (in 'k'), allowing viewers to quickly grasp the distribution.
+
+<!-- -->
+
+-   [x] **Effective use of color and consistency**
+    The uniform green color keeps the design clean and avoids unnecessary visual distraction, which is appropriate for a single-variable chart.
+-   [x] **No benchmark or comparative line**
+    There’s no indication of average population, median, or any thresholds (e.g., “high density”), which could help interpret what counts as a large or small population.\
+
+**Areas for further improvement:**
+
+-   **Overcrowded y-axis labels**
+    With over 30 planning areas displayed, the vertical axis labels appear densely packed, making it difficult for viewers to quickly scan and compare area names.
+
+-   **Lack of reference line or benchmark**
+    The chart does not include an average, median, or any threshold line to indicate what constitutes a high or low population, reducing the interpretability of individual values.
+
+-   **No color encoding for additional meaning**
+    The use of a single green color keeps the chart clean but fails to convey additional insights, such as population tiers or regional grouping, which could enhance visual impact and analytical depth.
+
+### **4.2.3 Makeover Version of the Visualization**
+
+::: panel-tabset
+## The plot
+
+```{r}
+#| echo: false
+
+# Aggregate and Filter Population Data
+total_pop <- respop %>%
+  group_by(PA) %>%
+  summarise(Total_Pop = sum(Pop), .groups = "drop") %>%
+  filter(Total_Pop > 100) %>%
+  mutate(
+    ToolTip = paste0("Planning Area: ", PA,
+                     "\nPopulation: ", format(Total_Pop, big.mark = ",")),
+    Label = paste0(round(Total_Pop / 1000), "k")
+  )
+
+max_val <- max(total_pop$Total_Pop)
+avg_val <- mean(total_pop$Total_Pop)
+
+# Build the Interactive ggplot Object
+gg <- ggplot(total_pop,
+             aes(x = reorder(PA, Total_Pop), y = Total_Pop,
+                 fill = Total_Pop, tooltip = ToolTip, data_id = PA)) +   # 
+
+  geom_col_interactive(width = 0.7) +
+
+  geom_hline(yintercept = avg_val, linetype = "dashed", color = "black", size = 0.6) +
+
+  geom_text(aes(label = Label),
+            hjust = -0.1, color = "black", size = 3) +
+
+ scale_fill_gradient(
+    low = "#b7e3b1", high = "#1b7837",
+    labels = function(x) paste0(round(x / 1000), "k") 
+  ) +
+
+  coord_flip() +
+
+  scale_y_continuous(
+    labels = ~ paste0(.x / 1000, "k"),
+    limits = c(0, max_val * 1.1)
+  ) +
+
+  theme_minimal() +
+  theme(
+    axis.text.y = element_text(size = 6.5),
+    plot.margin = margin(r = 40),
+    legend.title = element_blank()
+  ) +
+
+  labs(
+    title = "Interactive Total Population by Planning Area (2024)",
+    x = "Planning Area", y = "Total Population"
+  )
+
+# Render Interactive Widget
+girafe(ggobj = gg,
+       width_svg = 8, height_svg = 6,
+       options = list(
+         opts_tooltip(css = "background-color:white;color:black;border:1px solid gray;padding:5px;"),
+         opts_hover(css = "fill-opacity:0.8;cursor:pointer;")
+       ))
+
+```
+
+## The code
+
+```{r}
+#| eval: false
+
+# Aggregate and Filter Population Data
+total_pop <- respop %>%
+  group_by(PA) %>%
+  summarise(Total_Pop = sum(Pop), .groups = "drop") %>%
+  filter(Total_Pop > 100) %>%
+  mutate(
+    ToolTip = paste0("Planning Area: ", PA,
+                     "\nPopulation: ", format(Total_Pop, big.mark = ",")),
+    Label = paste0(round(Total_Pop / 1000), "k")
+  )
+
+max_val <- max(total_pop$Total_Pop)
+avg_val <- mean(total_pop$Total_Pop)
+
+# Build the Interactive ggplot Object
+gg <- ggplot(total_pop,
+             aes(x = reorder(PA, Total_Pop), y = Total_Pop,
+                 fill = Total_Pop, tooltip = ToolTip, data_id = PA)) +   # 
+
+  geom_col_interactive(width = 0.7) +
+
+  geom_hline(yintercept = avg_val, linetype = "dashed", color = "black", size = 0.6) +
+
+  geom_text(aes(label = Label),
+            hjust = -0.1, color = "black", size = 3) +
+
+ scale_fill_gradient(
+    low = "#b7e3b1", high = "#1b7837",
+    labels = function(x) paste0(round(x / 1000), "k")
+  ) +
+
+  coord_flip() +
+
+  scale_y_continuous(
+    labels = ~ paste0(.x / 1000, "k"),
+    limits = c(0, max_val * 1.1)
+  ) +
+
+  theme_minimal() +
+  theme(
+    axis.text.y = element_text(size = 6.5),
+    plot.margin = margin(r = 40),
+    legend.title = element_blank()
+  ) +
+
+  labs(
+    title = "Interactive Total Population by Planning Area (2024)",
+    x = "Planning Area", y = "Total Population"
+  )
+
+# Render Interactive Widget
+girafe(ggobj = gg,
+       width_svg = 8, height_svg = 6,
+       options = list(
+         opts_tooltip(css = "background-color:white;color:black;border:1px solid gray;padding:5px;"),
+         opts_hover(css = "fill-opacity:0.8;cursor:pointer;")
+       ))
+```
+:::
+
+::: callout-note
+The dashed vertical line in the chart represents the **average total population** across all planning areas. It serves as a benchmark to help identify which areas have significantly higher or lower population levels relative to the national average.
+:::
