@@ -1,7 +1,6 @@
 ---
 title: "Take-Home Exercise 1: Data Visualisation Makeover"
 author: "Wang Anqi"
-
 execute:
   warning: false
 ---
