@@ -3,6 +3,7 @@ title: "Take-Home Exercise 1: Data Visualisation Makeover"
 author: "Wang Anqi"
 execute:
   warning: false
+  freeze: true
 ---
 
 # **1 Overview**
@@ -300,7 +301,7 @@ girafe(ggobj = gg,
 -   **Lack of a reference line or benchmark**\
     The chart does not include a reference line (e.g., a ratio of 1.0) or an average, which would help viewers better understand deviations from gender balance.
 
-###  **4.1.3 Makeover Version of the Visualization**
+### **4.1.3 Makeover Version of the Visualization**
 
 ::: panel-tabset
 ## The plot
@@ -542,26 +543,20 @@ girafe(ggobj = gg,
 
 **Good design principles:**
 
--   [x] **Clear ranking and labeling**
-    The bar chart is sorted from highest to lowest population, and all bars are labeled with clear population values (in 'k'), allowing viewers to quickly grasp the distribution.
+-   [x] **Clear ranking and labeling** The bar chart is sorted from highest to lowest population, and all bars are labeled with clear population values (in 'k'), allowing viewers to quickly grasp the distribution.
 
 <!-- -->
 
--   [x] **Effective use of color and consistency**
-    The uniform green color keeps the design clean and avoids unnecessary visual distraction, which is appropriate for a single-variable chart.
--   [x] **No benchmark or comparative line**
-    There’s no indication of average population, median, or any thresholds (e.g., “high density”), which could help interpret what counts as a large or small population.\
+-   [x] **Effective use of color and consistency** The uniform green color keeps the design clean and avoids unnecessary visual distraction, which is appropriate for a single-variable chart.
+-   [x] **No benchmark or comparative line** There’s no indication of average population, median, or any thresholds (e.g., “high density”), which could help interpret what counts as a large or small population.\
 
 **Areas for further improvement:**
 
--   **Overcrowded y-axis labels**
-    With over 30 planning areas displayed, the vertical axis labels appear densely packed, making it difficult for viewers to quickly scan and compare area names.
+-   **Overcrowded y-axis labels** With over 30 planning areas displayed, the vertical axis labels appear densely packed, making it difficult for viewers to quickly scan and compare area names.
 
--   **Lack of reference line or benchmark**
-    The chart does not include an average, median, or any threshold line to indicate what constitutes a high or low population, reducing the interpretability of individual values.
+-   **Lack of reference line or benchmark** The chart does not include an average, median, or any threshold line to indicate what constitutes a high or low population, reducing the interpretability of individual values.
 
--   **No color encoding for additional meaning**
-    The use of a single green color keeps the chart clean but fails to convey additional insights, such as population tiers or regional grouping, which could enhance visual impact and analytical depth.
+-   **No color encoding for additional meaning** The use of a single green color keeps the chart clean but fails to convey additional insights, such as population tiers or regional grouping, which could enhance visual impact and analytical depth.
 
 ### **4.2.3 Makeover Version of the Visualization**
 
