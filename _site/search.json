@@ -964,5 +964,82 @@
     "title": "5 Modelling, Visualising and Analysing Network Data with R",
     "section": "8.6 Interactivity",
     "text": "8.6 Interactivity\nIn the code chunk below, visOptions() is used to incorporate interactivity features in the data visualisation.\n\nThe argument highlightNearest highlights nearest when clicking a node.\nThe argument nodesIdSelection adds an id node selection creating an HTML select element.\n\n\n\nCode\nvisNetwork(GAStech_nodes,\n           GAStech_edges_aggregated) %&gt;%\n  visIgraphLayout(layout = \"layout_with_fr\") %&gt;%\n  visOptions(highlightNearest = TRUE,\n             nodesIdSelection = TRUE) %&gt;%\n  visLegend() %&gt;%\n  visLayout(randomSeed = 123)\n\n\n\n\n\n\nVisit Option to find out more about visOption’s argument."
+  },
+  {
+    "objectID": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01.html",
+    "href": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01.html",
+    "title": "Take-Home Exercise 1: Data Visualisation on Singapore’s Demographics (2024)",
+    "section": "",
+    "text": "This take-home exercise involves designing insightful data visualisations based on demographic data for Singapore in 2024. The goal is to explore and communicate the demographic structures and distribution through effective graphical representations.\n\n\nAll visualisations will be based on the dataset titled\n\n“Singapore Residents by Planning Area / Subzone, Single Year of Age and Sex, June 2024”,\n\nprovided by the Department of Statistics, Singapore (DOS)."
+  },
+  {
+    "objectID": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01.html#the-data",
+    "href": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01.html#the-data",
+    "title": "Take-Home Exercise 1: Data Visualisation on Singapore’s Demographics (2024)",
+    "section": "",
+    "text": "All visualisations will be based on the dataset titled\n\n“Singapore Residents by Planning Area / Subzone, Single Year of Age and Sex, June 2024”,\n\nprovided by the Department of Statistics, Singapore (DOS)."
+  },
+  {
+    "objectID": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01.html#installing-and-loading-the-required-libraries",
+    "href": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01.html#installing-and-loading-the-required-libraries",
+    "title": "Take-Home Exercise 1: Data Visualisation on Singapore’s Demographics (2024)",
+    "section": "1.2.1 Installing and loading the required libraries",
+    "text": "1.2.1 Installing and loading the required libraries\nIn this exercise, beside tidyverse, four R packages will be used. They are:\n\ntidyverse: a collection of core packages designed for data science, used extensively for data preparation and wrangling.\nggrepel: an R package provides geoms for ggplot2 to repel overlapping text labels.\nggthemes: an R package provides some extra themes, geoms, and scales for ‘ggplot2’.\nhrbrthemes: an R package provides typography-centric themes and theme components for ggplot2.\npatchwork: an R package for preparing composite figure created using ggplot2.\n\nCode chunk below will be used to check if these packages have been installed and also will load them onto working R environment.\n\npacman::p_load(tidyverse, ggrepel, patchwork, \n               ggthemes, hrbrthemes,)"
+  },
+  {
+    "objectID": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01.html#importing-data",
+    "href": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01.html#importing-data",
+    "title": "Take-Home Exercise 1: Data Visualisation on Singapore’s Demographics (2024)",
+    "section": "1.2.2 Importing data",
+    "text": "1.2.2 Importing data\nFor the purpose of this exercise, a data file called Exam_data will be used. It consists of year end examination grades of a cohort of primary 3 students from a local school. It is in csv file format.\nThe code chunk below imports exam_data.csv into R environment by using read_csv() function of readr package. readr is one of the tidyverse package.\n\npopu_data &lt;- read_csv(\"data/respopagesex2024.csv\", show_col_types = FALSE)\n\ncat(\"Total number of records in the dataset:\", nrow(popu_data), \"\\n\")\n\nTotal number of records in the dataset: 60424"
+  },
+  {
+    "objectID": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01.html#variable-selection",
+    "href": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01.html#variable-selection",
+    "title": "Take-Home Exercise 1: Data Visualisation on Singapore’s Demographics (2024)",
+    "section": "1.3.1 Variable Selection",
+    "text": "1.3.1 Variable Selection\nAccording to the dataset documentation, The meaning of each column in the dataset is as follows:\n\nPA：Planning Area\n\n\n\nSZ：Subzone\n\n\n\nAge：Single Year of Age\n\n\n\nSex：Sex\n\n\n\nPop：Resident Count\n\n\n\nTime：Time / Period\n\nSince all data points were collected in the year 2024 and the Time column does not provide additional analytical value for this task, it will be removed from the dataset to simplify the analysis.\n\n# Remove the 'Time' column from the dataset\npopu_data1 &lt;- popu_data %&gt;% select(-Time)"
+  },
+  {
+    "objectID": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01.html#handling-missing-values",
+    "href": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01.html#handling-missing-values",
+    "title": "Take-Home Exercise 1: Data Visualisation on Singapore’s Demographics (2024)",
+    "section": "1.3.2 Handling missing values",
+    "text": "1.3.2 Handling missing values\nBefore conducting the analysis, we need to check for missing values. Later on, when we recode the age groups, if there are NAs in the columns, they may affect the recoding process\nis.na() allows us to identify missing values in our dataset and sum() counts the frequency of such missing values.\n\n# Checks for NA in each column\ncolSums(is.na(popu_data1))\n\n PA  SZ Age Sex Pop \n  0   0   0   0   0 \n\n\nThe result indicates that there are no missing values in any of the columns (PA, SZ, Age, Sex, Pop); each column has 0 missing values, confirming that the dataset is complete.\n\n# Here's what the dataset looks like so far\npopu_data1\n\n# A tibble: 60,424 × 5\n   PA         SZ                     Age   Sex       Pop\n   &lt;chr&gt;      &lt;chr&gt;                  &lt;chr&gt; &lt;chr&gt;   &lt;dbl&gt;\n 1 Ang Mo Kio Ang Mo Kio Town Centre 0     Males      10\n 2 Ang Mo Kio Ang Mo Kio Town Centre 0     Females    10\n 3 Ang Mo Kio Ang Mo Kio Town Centre 1     Males      10\n 4 Ang Mo Kio Ang Mo Kio Town Centre 1     Females    10\n 5 Ang Mo Kio Ang Mo Kio Town Centre 2     Males      10\n 6 Ang Mo Kio Ang Mo Kio Town Centre 2     Females    10\n 7 Ang Mo Kio Ang Mo Kio Town Centre 3     Males      10\n 8 Ang Mo Kio Ang Mo Kio Town Centre 3     Females    10\n 9 Ang Mo Kio Ang Mo Kio Town Centre 4     Males      30\n10 Ang Mo Kio Ang Mo Kio Town Centre 4     Females    10\n# ℹ 60,414 more rows"
+  },
+  {
+    "objectID": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01.html#data-recoding-and-type-conversion",
+    "href": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01.html#data-recoding-and-type-conversion",
+    "title": "Take-Home Exercise 1: Data Visualisation on Singapore’s Demographics (2024)",
+    "section": "1.3.3 Data Recoding and Type Conversion",
+    "text": "1.3.3 Data Recoding and Type Conversion\nAs shown in the output above, the Age column is currently stored as a character type (&lt;chr&gt;), rather than as an integer (&lt;int&gt;). This prevents numerical operations and proper plotting of age-related trends. Therefore, it is necessary to convert the Age variable to an integer format to enable meaningful quantitative analysis.\nBut the dataset contains a special age value \"90 and over\" which cannot be directly converted to a numeric format. To maintain consistency and enable numerical analysis, this value was recoded to 90, representing the lower bound of the age group.\n\n# Step 1: Recode \"90 and over\" to \"90\"\npopu_data1 &lt;- popu_data1 %&gt;%\n  mutate(Age = ifelse(Age == \"90 and over\", \"90\", Age))\n\n\n# Step 2: Convert Age to integer\npopu_data1 &lt;- popu_data1 %&gt;%\n  mutate(\n    Age = trimws(Age),\n    Age = ifelse(Age == \"90 and over\", \"90\", Age),\n    Age = as.integer(Age)\n  )"
+  },
+  {
+    "objectID": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01.html#standardizing-labels",
+    "href": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01.html#standardizing-labels",
+    "title": "Take-Home Exercise 1: Data Visualisation on Singapore’s Demographics (2024)",
+    "section": "1.3.4 Standardizing Labels",
+    "text": "1.3.4 Standardizing Labels\n\npopu_data1 &lt;- popu_data1 %&gt;%\n  mutate(\n    Sex = recode(Sex, \"Males\" = \"Male\", \"Females\" = \"Female\")\n  )\n\n\n# Here's what the dataset looks like so far\npopu_data1\n\n# A tibble: 60,424 × 5\n   PA         SZ                       Age Sex      Pop\n   &lt;chr&gt;      &lt;chr&gt;                  &lt;int&gt; &lt;chr&gt;  &lt;dbl&gt;\n 1 Ang Mo Kio Ang Mo Kio Town Centre     0 Male      10\n 2 Ang Mo Kio Ang Mo Kio Town Centre     0 Female    10\n 3 Ang Mo Kio Ang Mo Kio Town Centre     1 Male      10\n 4 Ang Mo Kio Ang Mo Kio Town Centre     1 Female    10\n 5 Ang Mo Kio Ang Mo Kio Town Centre     2 Male      10\n 6 Ang Mo Kio Ang Mo Kio Town Centre     2 Female    10\n 7 Ang Mo Kio Ang Mo Kio Town Centre     3 Male      10\n 8 Ang Mo Kio Ang Mo Kio Town Centre     3 Female    10\n 9 Ang Mo Kio Ang Mo Kio Town Centre     4 Male      30\n10 Ang Mo Kio Ang Mo Kio Town Centre     4 Female    10\n# ℹ 60,414 more rows\n\n\nNotes:\n\nFor June 2024, Planning Areas refer to areas demarcated in the Urban Redevelopment Authority’s Master Plan 2019.\nData from 2003 onwards exclude residents who have been away from Singapore for a continuous period of 12 months or longer as at the reference period.\nThe figures have been rounded to the nearest 10.\nThe data may not add up due to rounding."
+  },
+  {
+    "objectID": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01.html#population-pyramid-by-age-and-sex",
+    "href": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01.html#population-pyramid-by-age-and-sex",
+    "title": "Take-Home Exercise 1: Data Visualisation on Singapore’s Demographics (2024)",
+    "section": "1.4.1 Population Pyramid by Age and Sex",
+    "text": "1.4.1 Population Pyramid by Age and Sex\n\nThe plotThe code\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n# construct population pyramid data (set male values as negative).\npyramid_data &lt;- popu_data1 %&gt;%\n  mutate(Pop = ifelse(Sex == \"Male\", -Pop, Pop))\n\n# define color\ngender_colors &lt;- c(\"Male\" = \"#9ecae1\", \"Female\" = \"#fbb4b9\")\n\n# plot\nggplot(pyramid_data, aes(x = Age, y = Pop, fill = Sex)) +\n  geom_bar(stat = \"identity\", width = 0.9) +\n  coord_flip() +\n  scale_y_continuous(labels = abs) +\n  scale_x_continuous(breaks = seq(0, 90, by = 5)) +\n  scale_fill_manual(values = gender_colors) +\n  labs(\n    title = \"Population Pyramid of Singapore Residents (2024)\",\n    subtitle = \"Distribution by Age and Gender\",\n    x = \"Age\",\n    y = \"Population\",\n    fill = \"Gender\"\n  ) +\n  theme_minimal(base_size = 14) +\n  theme(\n    plot.title = element_text(face = \"bold\", size = 16),\n    plot.subtitle = element_text(size = 13, margin = margin(b = 10)),\n    legend.position = \"bottom\",\n    panel.grid.minor = element_blank()\n  )\n\n\n\n\nThe population pyramid shows the age and gender distribution of Singapore residents in 2024. Males are represented on the left and females on the right.\nThe pyramid has a wide middle, especially between ages 25 to 39, indicating a strong working-age population. The base is relatively narrow, suggesting lower birth rates in recent years. At older ages, especially 75 and above, the female population exceeds that of males, reflecting higher life expectancy for women. Overall, the shape of the pyramid reveals an ageing population with fewer young residents, which may have implications for future labour supply and social support needs."
+  },
+  {
+    "objectID": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01.html#top-10-planning-areas-by-population",
+    "href": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01.html#top-10-planning-areas-by-population",
+    "title": "Take-Home Exercise 1: Data Visualisation on Singapore’s Demographics (2024)",
+    "section": "1.4.2 Top 10 Planning Areas by Population",
+    "text": "1.4.2 Top 10 Planning Areas by Population\n\nThe plotThe code\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n# Summarise total population by Planning Area (PA)\ntop_pa &lt;- popu_data1 %&gt;%\n  group_by(PA) %&gt;%\n  summarise(Total = sum(Pop)) %&gt;%\n  arrange(desc(Total)) %&gt;%\n  slice_head(n = 10)\n\n# Plot\nlibrary(scales)\n\nggplot(top_pa, aes(x = reorder(PA, Total), y = Total)) +\n  geom_col(fill = \"#4682b4\") +\n  coord_flip() +\n  scale_y_continuous(labels = comma) +\n  labs(\n    title = \"Top 10 Planning Areas by Population (2024)\",\n    x = \"Planning Area\",\n    y = \"Total Population\"\n  ) +\n  theme_minimal(base_size = 13)\n\n\n\n\nThe bar chart displays the top 10 planning areas in Singapore by total population in 2024. Tampines ranks first, followed closely by Bedok and Sengkang. These areas are known for their large residential zones and well-developed public amenities. Most of the top-ranked areas are located in the eastern and northern parts of Singapore, reflecting urban decentralisation and population growth in regional centres. The population sizes of these areas are relatively close, each exceeding 150,000 residents."
+  },
+  {
+    "objectID": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01.html#working-and-non-working-age-population-in-top-10-planning-areas",
+    "href": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01.html#working-and-non-working-age-population-in-top-10-planning-areas",
+    "title": "Take-Home Exercise 1: Data Visualisation on Singapore’s Demographics (2024)",
+    "section": "1.4.3 Working and Non-working Age Population in Top 10 Planning Areas",
+    "text": "1.4.3 Working and Non-working Age Population in Top 10 Planning Areas\n\nThe plotThe code\n\n\n\n\n\n\n\n\n\n\n\n\n\n\ntop10_pa &lt;- popu_data1 %&gt;%\n  count(PA, wt = Pop) %&gt;%\n  top_n(10, n) %&gt;%\n  pull(PA)\n# group and summarize the population by labour force status\nage_grouped &lt;- popu_data1 %&gt;%\n  filter(PA %in% top10_pa) %&gt;%\n  mutate(\n    AgeGroup = case_when(\n      Age &gt;= 25 & Age &lt;= 64 ~ \"Working-age\",\n      TRUE ~ \"Non-working-age\"\n    )\n  ) %&gt;%\n  group_by(PA, AgeGroup) %&gt;%\n  summarise(Total = sum(Pop), .groups = \"drop\")\n\n# plot\nggplot(age_grouped, aes(x = reorder(PA, -Total), y = Total, fill = AgeGroup)) +\n  geom_col(color = \"black\", alpha = 0.9) +\n  scale_fill_manual(values = c(\"Working-age\" = \"#3182bd\", \"Non-working-age\" = \"#fdae6b\")) +\n  scale_y_continuous(labels = comma) + \n  labs(\n    title = \"Working and Non-working Age Population in Top 10 Planning Areas (2024)\",\n    x = \"Planning Area\",\n    y = \"Population\",\n    fill = \"Age Group\"\n  ) +\n  theme_minimal(base_size = 13) +\n  theme(\n    axis.text.x = element_text(angle = 30, hjust = 1),\n    plot.title = element_text(face = \"bold\", size = 15)\n  )\n\n\n\n\nThis stacked bar chart shows the distribution of working-age (25–64) and non-working-age (0–24 and 65+) populations across the top 10 most populous planning areas in Singapore (2024). Working-age individuals consistently make up the majority in every area, with Tampines, Sengkang, and Woodlands having particularly high counts. Interestingly, Bedok and Jurong West, despite their large populations, have a relatively higher share of non-working-age residents—likely due to an older population base. In contrast, newer towns like Punggol and Sengkang have a larger proportion of working-age adults, reflecting younger and growing communities."
   }
 ]

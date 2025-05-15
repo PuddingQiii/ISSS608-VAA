@@ -1,7 +1,6 @@
 ---
 title: "Take-Home Exercise 1: Data Visualisation on Singapore’s Demographics (2024)"
 author: "Wang Anqi"
-format: docx
 execute:
   warning: false
   freeze: true
