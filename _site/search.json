@@ -961,9 +961,9 @@
   {
     "objectID": "In-class_Ex/In-class_Ex01.html",
     "href": "In-class_Ex/In-class_Ex01.html",
-    "title": "Inclass_Ex01",
+    "title": "In-class_Ex01",
     "section": "",
-    "text": "pacman::p_load(tidyverse, jsonlite, \n               SmartEDA, tidygraph,\n               ggraph)"
+    "text": "pacman::p_load(tidyverse, jsonlite, \n               SmartEDA, tidygraph,\n               ggraph)\n\n\n\n\n\nkg &lt;- fromJSON(\"data/MC1_graph.json\")\n\n\n\n\n\nstr(kg, max.level = 1)\n\nList of 5\n $ directed  : logi TRUE\n $ multigraph: logi TRUE\n $ graph     :List of 2\n $ nodes     :'data.frame': 17412 obs. of  10 variables:\n $ links     :'data.frame': 37857 obs. of  4 variables:"
   },
   {
     "objectID": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01.html",
@@ -1041,5 +1041,33 @@
     "title": "Take-Home Exercise 1: Data Visualisation on Singapore’s Demographics (2024)",
     "section": "1.4.3 Working and Non-working Age Population in Top 10 Planning Areas",
     "text": "1.4.3 Working and Non-working Age Population in Top 10 Planning Areas\n\nThe plotThe code\n\n\n\n\n\n\n\n\n\n\n\n\n\n\ntop10_pa &lt;- popu_data1 %&gt;%\n  count(PA, wt = Pop) %&gt;%\n  top_n(10, n) %&gt;%\n  pull(PA)\n# group and summarize the population by labour force status\nage_grouped &lt;- popu_data1 %&gt;%\n  filter(PA %in% top10_pa) %&gt;%\n  mutate(\n    AgeGroup = case_when(\n      Age &gt;= 25 & Age &lt;= 64 ~ \"Working-age\",\n      TRUE ~ \"Non-working-age\"\n    )\n  ) %&gt;%\n  group_by(PA, AgeGroup) %&gt;%\n  summarise(Total = sum(Pop), .groups = \"drop\")\n\n# plot\nggplot(age_grouped, aes(x = reorder(PA, -Total), y = Total, fill = AgeGroup)) +\n  geom_col(color = \"black\", alpha = 0.9) +\n  scale_fill_manual(values = c(\"Working-age\" = \"#3182bd\", \"Non-working-age\" = \"#fdae6b\")) +\n  scale_y_continuous(labels = comma) + \n  labs(\n    title = \"Working and Non-working Age Population in Top 10 Planning Areas (2024)\",\n    x = \"Planning Area\",\n    y = \"Population\",\n    fill = \"Age Group\"\n  ) +\n  theme_minimal(base_size = 13) +\n  theme(\n    axis.text.x = element_text(angle = 30, hjust = 1),\n    plot.title = element_text(face = \"bold\", size = 15)\n  )\n\n\n\n\nThis stacked bar chart shows the distribution of working-age (25–64) and non-working-age (0–24 and 65+) populations across the top 10 most populous planning areas in Singapore (2024). Working-age individuals consistently make up the majority in every area, with Tampines, Sengkang, and Woodlands having particularly high counts. Interestingly, Bedok and Jurong West, despite their large populations, have a relatively higher share of non-working-age residents—likely due to an older population base. In contrast, newer towns like Punggol and Sengkang have a larger proportion of working-age adults, reflecting younger and growing communities."
+  },
+  {
+    "objectID": "In-class_Ex/In-class_Ex01.html#installing-and-loading-the-packages",
+    "href": "In-class_Ex/In-class_Ex01.html#installing-and-loading-the-packages",
+    "title": "In-class_Ex01",
+    "section": "",
+    "text": "pacman::p_load(tidyverse, jsonlite, \n               SmartEDA, tidygraph,\n               ggraph)"
+  },
+  {
+    "objectID": "In-class_Ex/In-class_Ex01.html#data-import",
+    "href": "In-class_Ex/In-class_Ex01.html#data-import",
+    "title": "In-class_Ex01",
+    "section": "",
+    "text": "kg &lt;- fromJSON(\"data/MC1_graph.json\")"
+  },
+  {
+    "objectID": "In-class_Ex/In-class_Ex01.html#inspect-structure",
+    "href": "In-class_Ex/In-class_Ex01.html#inspect-structure",
+    "title": "In-class_Ex01",
+    "section": "",
+    "text": "str(kg, max.level = 1)\n\nList of 5\n $ directed  : logi TRUE\n $ multigraph: logi TRUE\n $ graph     :List of 2\n $ nodes     :'data.frame': 17412 obs. of  10 variables:\n $ links     :'data.frame': 37857 obs. of  4 variables:"
+  },
+  {
+    "objectID": "In-class_Ex/In-class_Ex01.html#initial-eda",
+    "href": "In-class_Ex/In-class_Ex01.html#initial-eda",
+    "title": "In-class_Ex01",
+    "section": "2.1 Initial EDA",
+    "text": "2.1 Initial EDA\n\nggplot(data = edges_tb1,\n       aes(y = `Edge Type`)) +\n  geom_bar()\n\n\n\n\n\n\n\n\nStep 1: Mapping from node id to row index\n\nid_map &lt;- tibble(id = nodes_tb1$id,\n                 index = seq_len(\n                   nrow(nodes_tb1)\n                 ))\n\nThis ensures each id from your node list is mapped to the correct row number.\nStep 2 : Map source and target IDs to row\n\nedges_tb1 &lt;- edges_tb1 %&gt;%\n  left_join(id_map, by = c(\"source\" = \"id\")) %&gt;%\n  rename(from = index) %&gt;%\n  left_join(id_map, by = c(\"target\" = \"id\")) %&gt;%\n  rename(to = index)\n\n\nedges_tb1 &lt;- edges_tb1 %&gt;%\n  filter(!is.na(from), !is.na(to))\n\n\ngraph &lt;- tbl_graph(nodes = nodes_tb1,\n                   edges = edges_tb1,\n                   directed = kg$directed)\n\n\nset.seed(1234)\n\nVisualising the whole Graph\n\nggraph(graph, layout = \"fr\") +\n  geom_edge_link(alpha = 0.3,\n                 colour = \"gray\") + \n  geom_node_point(aes(colour = `Node Type`),\n                 size = 4) +\n  geom_node_text(aes(label = name),\n                 repel =  TRUE,\n                 size = 2.5) +\n  theme_void()\n\n\ngraph_memberof &lt;- graph %&gt;%\n  activate(edges) %&gt;%\n  filter(`Edge Type` == \"Memberof\")\n\n\nused_node_indices &lt;- graph_memberof %&gt;%\n  activate(edges) %&gt;%\n  as_tibble() %&gt;%\n  select(from, to) %&gt;%\n  unlist() %&gt;%\n  unique()\n\nStep 3 : Keep only those nodes\n\ngraph_memberof &lt;- graph_memberof %&gt;%\n  activate(nodes) %&gt;%\n  mutate(row_id = row_number()) %&gt;%\n  filter(row_id %in% used_node_indices) %&gt;%\n  select(-row_id) #optional cleanup\n\nPlot the sub-graph"
   }
 ]

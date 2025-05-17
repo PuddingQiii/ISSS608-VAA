@@ -120,8 +120,3 @@ graph_memberof <- graph_memberof %>%
 ```
 
 Plot the sub-graph
-
-```{r}
-ggraph(graph_memberof,
-       
-```
