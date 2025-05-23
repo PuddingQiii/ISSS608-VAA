@@ -86,7 +86,8 @@ Before we can plot the calender heatmap, two new fields namely *wkday* and *hour
 ```{r}
 #| code-fold: true
 
-Sys.setlocale("LC_TIME", "C")
+# Set the system’s default time language to English
+invisible(Sys.setlocale("LC_TIME", "C"))
 ```
 
 ```{r}
