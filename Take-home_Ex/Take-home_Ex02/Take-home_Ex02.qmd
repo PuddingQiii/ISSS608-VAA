@@ -1,0 +1,457 @@
+---
+title: "Vast Challenge 2025 - Mini-challenge 1"
+author: "Wang Anqi"
+execute:
+  warning: false
+  freeze: false
+---
+
+# **1 Introduction**
+
+In this exercise, we will try to solve [Mini-Challenge 1](https://vast-challenge.github.io/2025/MC1.html) of [Vast Challenge 2025](https://vast-challenge.github.io/2025/index.html).
+
+## **1.1 Setting the scene**
+
+Silas Reed, a journalist, is investigating the rise of singer Sailor Shift and the influence of Oceanus Folk music. Sailor, once part of the Ivy Echoes band, rose to global fame after her 2028 breakthrough. Known for frequent collaborations and blending genres, she helped bring Oceanus Folk to international attention. Silas has collected data on artists, genres, albums, and collaborations to uncover how Sailor’s career evolved and how the genre has shaped and been shaped by the music world.
+
+## **1.2 Key objectives of this exercise**
+
+Silas Reed needs support to explore and visualize the career trajectory of Sailor Shift and the impact of Oceanus Folk music. This project focuses on helping him understand the evolution of Sailor’s influence, her collaborations, and how the genre has grown and shifted over time.
+
+# **2 Data Import & Processing**
+
+## **2.1 Loading relevant packages and data**
+
+Install and launch the R packages: scales, viridis, lubridate, ggthemes, gridExtra, readxl, knitr, data.table, CGPfunctions, ggHoriPlot, tidyverse, igraph, tidygraph, ggraph, visNetwork, clock, graphlayouts, concaveman, ggforce, jsonlite.
+
+```{r}
+#| code-fold: true
+
+# load package
+pacman::p_load(
+  scales, viridis, lubridate, ggthemes, gridExtra, readxl, knitr, data.table,
+  CGPfunctions, ggHoriPlot, tidyverse, igraph, tidygraph, ggraph, visNetwork,
+  clock, graphlayouts, concaveman, ggforce, jsonlite
+)
+
+# load data
+kg <- fromJSON("data/MC1_graph.json")
+```
+
+## **2.2 Data Cleaning**
+
+*Reference:* [MC1 Kickstarter](https://isss608-ay2024-25apr.netlify.app/th_ex/mc1-kickstarter) *by Prof Kam*
+
+```{r}
+#| code-fold: true
+
+# Set the system’s default time language to English
+invisible(Sys.setlocale("LC_TIME", "C"))
+```
+
+### **Step1 Examine the structure of *kg* object**
+
+In the code chunk below `str()` is used to reveal the structure of *kg* object.
+
+```{r}
+str(kg, max.level = 1)
+```
+
+### **Step2** **Extracting the edges and nodes tables**
+
+Next, `as_tibble()` of **tibble** package package is used to extract the nodes and links tibble data frames from *kg* object into two separate tibble data frames called *nodes_tbl* and *edges_tbl* respectively.
+
+```{r}
+nodes_tbl <- as_tibble(kg$nodes)
+edges_tbl <- as_tibble(kg$links) 
+```
+
+**Initial EDA**
+
+It is time for us to apply appropriate EDA methods to examine the data.
+
+In this code chunk below, ggplot2 functions are used the reveal the frequency distribution of *Edge Type* field of *edges_tbl*.
+
+```{r}
+ggplot(data = edges_tbl,
+       aes(y = `Edge Type`)) +
+  geom_bar()
+```
+
+On the other hands, code chunk below uses ggplot2 functions to reveal the frequency distribution of *Node Type* field of *nodes_tbl*.
+
+```{r}
+ggplot(data = nodes_tbl,
+       aes(y = `Node Type`)) +
+  geom_bar()
+```
+
+In the edge type distribution, **"PerformerOf"** is the most common, indicating that the data mainly captures performer-to-work relationships.\
+In the node type distribution, **"Person"** is the most frequent, followed by **"Song"** and **"Album"**, suggesting the network is primarily centered on individuals and musical works.
+
+### **Step3** **Creating Knowledge Graph**
+
+**Mapping from node id to row index**
+
+Before we can go ahead to build the tidygraph object, it is important for us to ensure each id from the node list is mapped to the correct row number. This requirement can be achive by using the code chunk below.
+
+```{r}
+id_map <- tibble(id = nodes_tbl$id,
+                 index = seq_len(
+                   nrow(nodes_tbl)))
+```
+
+**Map source and target IDs to row indices**
+
+Next, we will map the source and the target IDs to row indices by using the code chunk below.
+
+```{r}
+edges_tbl <- edges_tbl %>%
+  left_join(id_map, by = c("source" = "id")) %>%
+  rename(from = index) %>%
+  left_join(id_map, by = c("target" = "id")) %>%
+  rename(to = index)
+```
+
+**Filter out any unmatched (invalid) edges**
+
+The code chunk below will be used to exclude the unmatch edges.
+
+```{r}
+edges_tbl <- edges_tbl %>%
+  filter(!is.na(from), !is.na(to))
+```
+
+**Creating tidygraph**
+
+Lastly, `tbl_graph()` is used to create tidygraph’s graph object by using the code chunk below.
+
+```{r}
+graph <- tbl_graph(nodes = nodes_tbl, 
+                   edges = edges_tbl, 
+                   directed = kg$directed)
+```
+
+Confirm the output object is indeed in tidygraph format by using the code chunk below.
+
+```{r}
+class(graph)
+```
+
+# **3 Exploratory Data Analysis**
+
+*Reference:* [MC1 Kickstarter](https://isss608-ay2024-25apr.netlify.app/th_ex/mc1-kickstarter#visualising-the-knowledge-graph) *by Prof Kam*
+
+In this section, we will use ggraph’s functions to visualise and analyse the graph object.
+
+In order to ensure reproducibility, it is necessary to set the seed value before plotting by using the code chunk below.
+
+```{r}
+set.seed(1111)
+```
+
+In the code chunk below, ggraph functions are used to visualise the whole graph.
+
+```{r}
+ggraph(graph, layout = "fr") +
+  geom_edge_link(alpha = 0.3, 
+                 colour = "gray") +
+  geom_node_point(aes(color = `Node Type`), 
+                  size = 4) +
+  geom_node_text(aes(label = name), 
+                 repel = TRUE, 
+                 size = 2.5) +
+  theme_void()
+```
+
+# **4 Task1 Solving**
+
+Task1 requires us to design and develop visualizations and visual analytic tools that will allow Silas to explore and understand the profile of Sailor Shift’s career：
+
+1.  Who has she been most influenced by over time?
+
+2.  Who has she collaborated with and directly or indirectly influenced?
+
+3.  How has she influenced collaborators of the broader Oceanus Folk community?
+
+**Before addressing the questions in Task 1, we need to retrieve the node ID of Sailor Shift：**
+
+```{r}
+#| code-fold: true
+
+sailor_id <- nodes_tbl %>%
+  filter(str_detect(name, "Sailor Shift")) %>%
+  pull(id)
+
+```
+
+## 4.1 Construct the influence and collaboration network based on the knowledge graph related to Sailor Shift
+
+```{r}
+#| code-fold: true
+
+influence_types <- c("InterpoIatesFrom", "CoverOf", "InStyleOf")
+
+edges_influenced_by <- edges_tbl %>%
+  filter(`Edge Type` %in% influence_types, target == sailor_id)
+
+edges_sailor_influence <- edges_tbl %>%
+  filter(`Edge Type` %in% influence_types, source == sailor_id)
+
+
+group_ids <- edges_tbl %>% filter(`Edge Type` == "MemberOf", source == sailor_id) %>% pull(target)
+song_ids  <- edges_tbl %>% filter(`Edge Type` == "PerformerOf", source == sailor_id) %>% pull(target)
+
+
+edges_memberof <- edges_tbl %>%
+  filter(`Edge Type` == "MemberOf", target %in% group_ids)
+
+edges_performer <- edges_tbl %>%
+  filter(`Edge Type` == "PerformerOf", target %in% song_ids)
+
+
+edges_sailor_related <- bind_rows(
+  edges_influenced_by,
+  edges_sailor_influence,
+  edges_memberof,
+  edges_performer
+) %>% distinct()
+
+used_node_ids <- unique(c(edges_sailor_related$source, edges_sailor_related$target))
+nodes_sailor_related <- nodes_tbl %>% filter(id %in% used_node_ids)
+
+edges_sailor_related_clean <- edges_sailor_related %>%
+  select(source, target, `Edge Type`) %>%
+  filter(source != target) %>%    
+  distinct(source, target, .keep_all = TRUE) 
+
+nodes_sailor_related_clean <- nodes_sailor_related %>%
+  select(id, name, `Node Type`) %>%
+  distinct(id, .keep_all = TRUE)
+
+nodes_sailor_related_clean$id <- as.character(nodes_sailor_related_clean$id)
+edges_sailor_related_clean$source <- as.character(edges_sailor_related_clean$source)
+edges_sailor_related_clean$target <- as.character(edges_sailor_related_clean$target)
+
+graph_sailor <- tbl_graph(
+  nodes = nodes_sailor_related_clean,
+  edges = edges_sailor_related_clean,
+  node_key = "id",
+  directed = TRUE
+)
+
+```
+
+```{r}
+#| code-fold: true
+ggraph(graph_sailor, layout = "fr") +
+  geom_edge_link(aes(color = `Edge Type`), alpha = 0.5) +
+  geom_node_point(aes(color = `Node Type`), size = 2) +
+  geom_node_text(aes(label = name), repel = TRUE, size = 3) +
+  theme_void() +
+  labs(title = "Sailor Shift's Influence and Collaboration Network")
+
+```
+
+Based on the knowledge graph related to Sailor Shift, we constructed a network of her influence and collaborations. The network structure clearly reveals that Sailor Shift is a central figure in the entire music network, connected to a wide range of individuals, groups, songs, and albums, and different types of edges uncover her influence and collaboration pathways across multiple dimensions.
+
+## **4.2 Who has she been most influenced by over time?**
+
+According to the knowledge graph, Sailor Shift has been most influenced by:
+
+```{r}
+#| code-fold: true
+
+sailor_id <- nodes_tbl %>% filter(name == "Sailor Shift") %>% pull(id)
+
+influencer_edges <- edges_tbl %>%
+  filter(target == sailor_id, `Edge Type` %in% c("InStyleOf", "InfluencedBy"))
+
+influencer_ids <- influencer_edges$source
+
+influencers <- nodes_tbl %>% filter(id %in% influencer_ids) %>%
+  select(name, `Node Type`)
+
+print(influencers)
+
+```
+
+As indicated by the “InStyleOf” or “InfluencedBy” edges pointing toward her in the network. These nodes represent the people or groups that have shaped her musical style over time.
+
+## 4.3 Who has she collaborated with and directly or indirectly influenced?
+
+### 4.3.1 Who has she collaborated with?
+
+To accurately identify Sailor Shift’s collaborators, we focus on people and groups (not works).
+We extract all her direct collaborators by finding “MemberOf”, “PerformerOf”, “ProducerOf”, or “CollaboratedWith” relationships linked to her.
+If the collaborator node is a song or album, we trace back to find the actual performers, composers, or producers involved, ensuring our final list only includes people and groups.
+
+```{r}
+#| code-fold: true
+
+collab_types <- c("MemberOf", "PerformerOf", "ProducerOf", "CollaboratedWith")
+collab_edges <- edges_tbl %>%
+  filter((source == sailor_id | target == sailor_id) & `Edge Type` %in% collab_types)
+
+
+partner_ids <- ifelse(collab_edges$source == sailor_id, collab_edges$target, collab_edges$source)
+partner_nodes <- nodes_tbl %>% filter(id %in% partner_ids)
+
+
+partners_person_group <- partner_nodes %>% filter(`Node Type` %in% c("Person", "MusicalGroup"))
+
+
+work_ids <- partner_nodes %>% filter(`Node Type` %in% c("Song", "Album")) %>% pull(id)
+if(length(work_ids) > 0) {
+
+  performer_edges <- edges_tbl %>% filter(target %in% work_ids, `Edge Type` %in% c("PerformerOf", "ComposerOf", "ProducerOf"))
+  participant_ids <- performer_edges$source
+  partners_person_group <- bind_rows(
+    partners_person_group,
+    nodes_tbl %>% filter(id %in% participant_ids, `Node Type` %in% c("Person", "MusicalGroup"))
+  ) %>% distinct()
+}
+
+collaborators <- partners_person_group %>% select(name, `Node Type`)
+print(collaborators)
+
+```
+
+We can visually highlight all Sailor Shift’s collaborators (people and groups) in the network graph, either by node size, color, or both, making it easy to see her direct collaboration connections.
+
+```{r}
+#| code-fold: true
+collaborator_ids <- partners_person_group$id
+nodes_sailor_related_clean <- nodes_sailor_related_clean %>%
+  mutate(is_collaborator = id %in% collaborator_ids)
+graph_sailor <- tbl_graph(
+  nodes = nodes_sailor_related_clean,
+  edges = edges_sailor_related_clean,
+  node_key = "id",
+  directed = TRUE
+)
+
+graph_sailor <- graph_sailor %>%
+  activate(nodes) %>%
+  mutate(
+    color = ifelse(is_collaborator,
+      dplyr::case_when(
+        `Node Type` == "Album" ~ "#FFA07A",
+        `Node Type` == "MusicalGroup" ~ "#90EE90",
+        `Node Type` == "Person" ~ "#87CEFA",
+        `Node Type` == "Song" ~ "#DA70D6"
+      ),
+      "grey80"
+    )
+  )
+ggraph(graph_sailor, layout = "fr") +
+  geom_edge_link(aes(color = `Edge Type`), alpha = 0.5) +
+  geom_node_point(aes(color = I(color), size = ifelse(is_collaborator, 5, 2))) +
+  geom_node_text(aes(label = name), repel = TRUE, size = 3) +
+  scale_size_identity() +
+  labs(title = "Sailor Shift's Collaborators (Highlighted)") +
+  theme_void()
+
+```
+
+### 4.3.2 Who has she directly or indirectly influenced?
+
+```{r}
+#| code-fold: true
+
+library(igraph)
+g_igraph <- as.igraph(graph_sailor)
+
+person_group_ids <- nodes_sailor_related_clean %>%
+  filter(`Node Type` %in% c("Person", "MusicalGroup"), id != sailor_id) %>%
+  pull(id)
+
+sailor_vid <- which(V(g_igraph)$id == sailor_id)
+
+reachable_ids <- c()
+for (pid in person_group_ids) {
+  pid_vid <- which(V(g_igraph)$id == pid)
+  dist <- suppressWarnings(distances(g_igraph, v = sailor_vid, to = pid_vid))
+  if (!is.infinite(dist) && dist > 0) {
+    reachable_ids <- c(reachable_ids, pid)
+  }
+}
+
+direct_influenced <- edges_sailor_related_clean %>%
+  filter(source == sailor_id, target %in% person_group_ids) %>%
+  pull(target)
+
+indirect_influenced <- setdiff(reachable_ids, direct_influenced)
+
+
+nodes_sailor_related_clean <- nodes_sailor_related_clean %>%
+  mutate(
+    influence_type = case_when(
+      id %in% direct_influenced ~ "Direct",
+      id %in% indirect_influenced ~ "Indirect",
+      id == sailor_id ~ "Sailor Shift",
+      TRUE ~ "Other"
+    )
+  )
+
+graph_sailor <- graph_sailor %>%
+  activate(nodes) %>%
+  left_join(nodes_sailor_related_clean %>% select(id, influence_type), by = c("id" = "id"))
+# 绘图
+ggraph(graph_sailor, layout = "fr") +
+  geom_edge_link(aes(color = `Edge Type`), alpha = 0.3) +
+  geom_node_point(aes(color = influence_type, size = influence_type)) +
+  geom_node_text(aes(label = name), repel = TRUE, size = 3) +
+  scale_color_manual(
+    values = c(
+      "Direct" = "#f8766d",
+      "Indirect" = "#00ba38",
+      "Sailor Shift" = "#619cff",
+      "Other" = "grey80"
+    )
+  ) +
+  scale_size_manual(
+    values = c(
+      "Sailor Shift" = 6,
+      "Direct" = 4,
+      "Indirect" = 3.5,
+      "Other" = 2
+    )
+  ) +
+  theme_void() +
+  labs(title = "People and Groups Directly or Indirectly Influenced by Sailor Shift")
+
+
+```
+
+This graph illustrates the direct and indirect influence of Sailor Shift within the Oceanus Folk music network.
+
+-   **Red nodes** represent people or groups directly influenced by Sailor Shift, such as collaborators or group members.
+
+<!-- -->
+
+-    **Green nodes** indicate those indirectly influenced by Sailor Shift, meaning they are connected via one or more intermediaries but lack a direct link.
+
+<!-- -->
+
+-    **The blue node** is Sailor Shift herself.
+
+<!-- -->
+
+-    **Gray nodes** are other entities (e.g., works, albums) that are not directly or indirectly influenced by Sailor Shift.
+
+The network clearly demonstrates that Sailor Shift's influence permeates widely within the Oceanus Folk community, both through direct collaborations and via indirect network connections. This amplifies her overall impact and prominence in the music scene.
+
+## 4.4 How has she influenced collaborators of the broader Oceanus Folk community?
+
+1.   **Direct Influence**\
+    The network graph and attribute analysis show that Sailor Shift has established strong connections with several individuals and groups (such as through the PerformerOf and MemberOf edge types). For example, Kai Reynolds, Daniel O'Connell, and Ivy Echos are directly connected to Sailor Shift through collaboration. These direct collaborators are often active members or bands in the Oceanus Folk community, highlighting Sailor Shift’s central role in the scene.
+
+2.   **Indirect Influence**\
+    The influence of Sailor Shift extends beyond direct collaborators. For instance, Ivy Echos, who directly collaborates with Sailor Shift, is also connected to other members like Lila "Lilly" Hartman, Sophie Ramirez, and Jade Thompson. Through such first- and second-degree network connections, Sailor Shift’s influence spreads to a broader range of community members, even those she hasn’t worked with directly. This is visually evident in the network diagram by the green (indirect) nodes and edges.
+
+3.   **Facilitating Collaboration and Innovation**\
+    The network structure demonstrates that Sailor Shift is not limited to working with a single collaborator; instead, she acts as a bridge between different bands and artists. This central position enables her to facilitate the spread of musical styles and creative ideas within the Oceanus Folk community. Her interactions with groups like The Hollow Monarchs and Cassette Future, for example, help drive stylistic diversity and innovation within the genre.
+
+**Conclusion**\
+Through direct collaboration with key bands and members of the Oceanus Folk community, Sailor Shift has become a driving force in the development of the genre. Her influence also extends indirectly to a wider circle of musicians and groups, promoting stylistic exchange and creative innovation. The network visualization provides clear evidence of this core–diffusion pattern, highlighting her pivotal role and importance as a connector within the Oceanus Folk scene.
