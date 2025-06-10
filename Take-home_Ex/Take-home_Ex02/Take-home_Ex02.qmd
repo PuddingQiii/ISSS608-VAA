@@ -3,7 +3,7 @@ title: "Vast Challenge 2025 - Mini-challenge 1"
 author: "Wang Anqi"
 execute:
   warning: false
-  freeze: false
+  freeze: true
 ---
 
 # **1 Introduction**
@@ -282,9 +282,7 @@ As indicated by the “InStyleOf” or “InfluencedBy” edges pointing toward 
 
 ### 4.3.1 Who has she collaborated with?
 
-To accurately identify Sailor Shift’s collaborators, we focus on people and groups (not works).
-We extract all her direct collaborators by finding “MemberOf”, “PerformerOf”, “ProducerOf”, or “CollaboratedWith” relationships linked to her.
-If the collaborator node is a song or album, we trace back to find the actual performers, composers, or producers involved, ensuring our final list only includes people and groups.
+To accurately identify Sailor Shift’s collaborators, we focus on people and groups (not works). We extract all her direct collaborators by finding “MemberOf”, “PerformerOf”, “ProducerOf”, or “CollaboratedWith” relationships linked to her. If the collaborator node is a song or album, we trace back to find the actual performers, composers, or producers involved, ensuring our final list only includes people and groups.
 
 ```{r}
 #| code-fold: true
@@ -430,27 +428,27 @@ This graph illustrates the direct and indirect influence of Sailor Shift within 
 
 <!-- -->
 
--    **Green nodes** indicate those indirectly influenced by Sailor Shift, meaning they are connected via one or more intermediaries but lack a direct link.
+-   **Green nodes** indicate those indirectly influenced by Sailor Shift, meaning they are connected via one or more intermediaries but lack a direct link.
 
 <!-- -->
 
--    **The blue node** is Sailor Shift herself.
+-   **The blue node** is Sailor Shift herself.
 
 <!-- -->
 
--    **Gray nodes** are other entities (e.g., works, albums) that are not directly or indirectly influenced by Sailor Shift.
+-   **Gray nodes** are other entities (e.g., works, albums) that are not directly or indirectly influenced by Sailor Shift.
 
 The network clearly demonstrates that Sailor Shift's influence permeates widely within the Oceanus Folk community, both through direct collaborations and via indirect network connections. This amplifies her overall impact and prominence in the music scene.
 
 ## 4.4 How has she influenced collaborators of the broader Oceanus Folk community?
 
-1.   **Direct Influence**\
+1.  **Direct Influence**\
     The network graph and attribute analysis show that Sailor Shift has established strong connections with several individuals and groups (such as through the PerformerOf and MemberOf edge types). For example, Kai Reynolds, Daniel O'Connell, and Ivy Echos are directly connected to Sailor Shift through collaboration. These direct collaborators are often active members or bands in the Oceanus Folk community, highlighting Sailor Shift’s central role in the scene.
 
-2.   **Indirect Influence**\
+2.  **Indirect Influence**\
     The influence of Sailor Shift extends beyond direct collaborators. For instance, Ivy Echos, who directly collaborates with Sailor Shift, is also connected to other members like Lila "Lilly" Hartman, Sophie Ramirez, and Jade Thompson. Through such first- and second-degree network connections, Sailor Shift’s influence spreads to a broader range of community members, even those she hasn’t worked with directly. This is visually evident in the network diagram by the green (indirect) nodes and edges.
 
-3.   **Facilitating Collaboration and Innovation**\
+3.  **Facilitating Collaboration and Innovation**\
     The network structure demonstrates that Sailor Shift is not limited to working with a single collaborator; instead, she acts as a bridge between different bands and artists. This central position enables her to facilitate the spread of musical styles and creative ideas within the Oceanus Folk community. Her interactions with groups like The Hollow Monarchs and Cassette Future, for example, help drive stylistic diversity and innovation within the genre.
 
 **Conclusion**\
