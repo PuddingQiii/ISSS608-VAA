@@ -1,5 +1,5 @@
 ---
-title: "Visualising Geospatial Point Data"
+title: "8.2 Visualising Geospatial Point Data"
 author: "Wang Anqi"
 execute:
   warning: false
