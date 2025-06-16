@@ -1,5 +1,5 @@
 ---
-title: "Analytical Mapping"
+title: "8.3 Analytical Mapping"
 author: "Wang Anqi"
 execute:
   warning: false
