@@ -1,9 +1,9 @@
 ---
-title: "Visualising and Analysing Geographic Data"
+title: "8.1 Visualising and Analysing Geographic Data"
 author: "Wang Anqi"
 execute:
   warning: false
-  freeze: true
+  freeze: false
 ---
 
 # **1** **Overview**

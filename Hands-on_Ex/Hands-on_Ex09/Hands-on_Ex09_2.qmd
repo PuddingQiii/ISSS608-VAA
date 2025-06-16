@@ -170,23 +170,29 @@ ggplot.component = list(
 Since ggstasplot is an extension of ggplot2, it also supports faceting. However the feature is not available in *ggcorrmat()* but in the [*grouped_ggcorrmat()*](https://indrajeetpatil.github.io/ggstatsplot/reference/grouped_ggcorrmat.html) of **ggstatsplot**.
 
 ```{r}
+#| fig-width: 12
+#| fig-height: 14
+
 grouped_ggcorrmat(
   data = wine,
   cor.vars = 1:11,
   grouping.var = type,
   type = "robust",
   p.adjust.method = "holm",
-  plotgrid.args = list(ncol = 2),
-  ggcorrplot.args = list(outline.color = "black", 
-                         hc.order = TRUE,
-                         tl.cex = 10),
+  plotgrid.args = list(ncol = 1),
+  ggcorrplot.args = list(
+    outline.color = "black",
+    hc.order = TRUE,
+    tl.cex = 6
+  ),
   annotation.args = list(
     tag_levels = "a",
     title = "Correlogram for wine dataset",
-    subtitle = "The measures are: alcohol, sulphates, fixed acidity, citric acid, chlorides, residual sugar, density, free sulfur dioxide and volatile acidity",
+    subtitle = "The measures are: alcohol, sulphates, fixed acidity, citric acid, chlorides, etc.",
     caption = "Dataset: UCI Machine Learning Repository"
   )
 )
+
 ```
 
 ::: callout-tip
