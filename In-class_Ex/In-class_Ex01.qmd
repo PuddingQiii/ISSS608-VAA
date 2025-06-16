@@ -3,6 +3,7 @@ title: "In-class_Ex01"
 author: "Wang Anqi"
 execute:
   warning: false
+  freeze: true
 ---
 
 # 1 Getting Started
