@@ -176,7 +176,7 @@ This section is mainly composed of two parts.
 
 **In all three visualizations above, users can choose the artists thry interested and compare with other artists.**
 
-### 2. Prediction of Rising Stars
+**2. Prediction of Rising Stars**
 
 This part predict the most promising “rising stars” for the next five years (e.g., 2025–2030). The key analytical and interactive elements are as follows:
 
