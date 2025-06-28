@@ -3,7 +3,7 @@ title: "Information Dashboard Design: R methods"
 author: "Wang Anqi"
 execute:
   warning: false
-  freeze: false
+  freeze: true
 ---
 
 # **1 Overview**

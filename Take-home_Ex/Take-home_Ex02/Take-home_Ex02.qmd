@@ -3,7 +3,7 @@ title: "Vast Challenge 2025 - Mini-challenge 1"
 author: "Wang Anqi"
 execute:
   warning: false
-  freeze: true
+  freeze: false
 ---
 
 # **1 Introduction**
@@ -25,7 +25,7 @@ Silas Reed needs support to explore and visualize the career trajectory of Sailo
 Install and launch the R packages: scales, viridis, lubridate, ggthemes, gridExtra, readxl, knitr, data.table, CGPfunctions, ggHoriPlot, tidyverse, igraph, tidygraph, ggraph, visNetwork, clock, graphlayouts, concaveman, ggforce, jsonlite.
 
 ```{r}
-#| code-fold: true
+  #| code-fold: true
 
 # load package
 pacman::p_load(
@@ -152,17 +152,7 @@ set.seed(1111)
 
 In the code chunk below, ggraph functions are used to visualise the whole graph.
 
-```{r}
-ggraph(graph, layout = "fr") +
-  geom_edge_link(alpha = 0.3, 
-                 colour = "gray") +
-  geom_node_point(aes(color = `Node Type`), 
-                  size = 4) +
-  geom_node_text(aes(label = name), 
-                 repel = TRUE, 
-                 size = 2.5) +
-  theme_void()
-```
+`` {#{r} #ggraph(graph, layout = "fr") + #  geom_edge_link(alpha = 0.3,  #                 colour = "gray") + #  geom_node_point(aes(color = `Node Type`),  #                  size = 4) + #  geom_node_text(aes(label = name),  #                 repel = TRUE,  #                 size = 2.5) + #  theme_void() ``
 
 # **4 Task1 Solving**
 
@@ -453,3 +443,129 @@ The network clearly demonstrates that Sailor Shift's influence permeates widely 
 
 **Conclusion**\
 Through direct collaboration with key bands and members of the Oceanus Folk community, Sailor Shift has become a driving force in the development of the genre. Her influence also extends indirectly to a wider circle of musicians and groups, promoting stylistic exchange and creative innovation. The network visualization provides clear evidence of this core–diffusion pattern, highlighting her pivotal role and importance as a connector within the Oceanus Folk scene.
+
+# **5 Task3 Solving**
+
+## **5.1 艺术家对比**
+
+对比 **Sailor Shift**、**Maya Jensen**、**Beatrice Albright** 三位艺术家的职业生涯进程，用多面（facet）折线图分别显示**每年**的以下三个指标：
+
+1.  **发布的作品数量**（每年以 Song 或 Album 结点统计）
+
+2.  **合作次数**（每有一次与其他人共同出现在一首作品中即记一次合作）
+
+3.  **影响力**（每年作品或节点中 notable==TRUE 的数量）
+
+A. 统计每年作品数
+
+```{r}
+#| code-fold: true
+
+# 1. 统计每年作品数
+artists <- c("Sailor Shift", "Maya Jensen", "Beatrice Albright")
+artist_ids <- nodes_tbl %>% 
+  filter(name %in% artists, `Node Type` == "Person") %>% 
+  pull(id)
+
+works_per_year <- edges_tbl %>% 
+  filter(`Edge Type` %in% c("PerformerOf", "MemberOf", "ProducerOf")) %>%
+  filter(source %in% artist_ids) %>%
+  left_join(nodes_tbl, by = c("target" = "id")) %>%
+  filter(`Node Type` %in% c("Song", "Album")) %>%
+  filter(!is.na(release_date)) %>%
+  mutate(year = as.integer(release_date)) %>%
+  left_join(nodes_tbl %>% select(id, name), by = c("source" = "id"), suffix = c("", "_artist")) %>%
+  group_by(name_artist, year) %>%
+  summarise(work_count = n(), .groups = "drop")
+
+```
+
+B. 统计每年合作次数
+
+```{r}
+#| code-fold: true
+
+# 2. 统计合作次数
+artist_names <- c("Sailor Shift", "Maya Jensen", "Beatrice Albright")
+artist_nodes <- nodes_tbl %>%
+  filter(name %in% artist_names, `Node Type` == "Person")
+
+work_edge_types <- c("PerformerOf", "ComposerOf", "ProducerOf", "LyricistOf")
+artist_works <- edges_tbl %>%
+  filter(source %in% artist_nodes$id, `Edge Type` %in% work_edge_types) %>%
+  select(artist_id = source, work_id = target)
+
+artist_works <- artist_works %>%
+  left_join(nodes_tbl %>% filter(`Node Type` %in% c("Song", "Album")) %>%
+              select(work_id = id, release_date), by = "work_id")
+
+work_participants <- edges_tbl %>%
+  filter(`Edge Type` %in% work_edge_types) %>%
+  select(work_id = target, participant_id = source)
+
+collab_stats <- artist_works %>%
+  left_join(work_participants, by = "work_id") %>%
+  filter(artist_id != participant_id) %>%
+  left_join(nodes_tbl %>% select(participant_id = id, participant_name = name), by = "participant_id") %>%
+  left_join(nodes_tbl %>% select(artist_id = id, artist_name = name), by = "artist_id") %>%
+  group_by(artist_name, release_date) %>%
+  summarise(coop_count = n(), .groups = "drop") %>%
+  mutate(year = as.integer(release_date))
+
+
+```
+
+C. 统计每年影响力 notable==TRUE 数量
+
+```{r}
+#| code-fold: true
+
+# 3. 统计每年影响力 notable==TRUE 数量
+notable_per_year <- edges_tbl %>%
+  filter(`Edge Type` %in% c("PerformerOf", "MemberOf", "ProducerOf")) %>%
+  filter(source %in% artist_ids) %>%
+  left_join(nodes_tbl, by = c("target" = "id")) %>%
+  filter(`Node Type` %in% c("Song", "Album")) %>%
+  filter(!is.na(release_date)) %>%
+  mutate(year = as.integer(release_date)) %>%
+  filter(notable == TRUE) %>%
+  left_join(nodes_tbl %>% select(id, name), by = c("source" = "id"), suffix = c("", "_artist")) %>%
+  group_by(name_artist, year) %>%
+  summarise(notable_count = n(), .groups = "drop")
+
+```
+
+D. 合并数据与可视化
+
+```{r}
+#| code-fold: true
+
+# 4. 合并所有指标为长表格
+df <- works_per_year %>%
+  full_join(collab_stats, by = c("name_artist" = "artist_name", "year")) %>%
+  full_join(notable_per_year, by = c("name_artist", "year")) %>%
+  replace_na(list(work_count = 0, coop_count = 0, notable_count = 0)) %>%
+  pivot_longer(
+    cols = c(work_count, coop_count, notable_count),
+    names_to = "indicator",
+    values_to = "value"
+  )
+
+# 5. 可视化（多面折线图）
+ggplot(df, aes(x = year, y = value, color = name_artist)) +
+  geom_line(size = 1) +
+  facet_wrap(~indicator, scales = "free_y",
+    labeller = as_labeller(c(
+      work_count = "作品数量",
+      coop_count = "合作次数",
+      notable_count = "影响力(Notable)"
+    ))
+  ) +
+  labs(
+    title = "三位艺术家职业生涯多维折线图",
+    x = "年份", y = "数值", color = "艺术家"
+  ) +
+  theme_minimal()
+
+
+```
